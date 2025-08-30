@@ -4,8 +4,11 @@
 import express from "express";
 import fetch from "node-fetch"; // Needed for proxying (if Node < 18)
 import bodyParser from "body-parser";
+import { pipeline } from "stream";
+import { promisify } from "util";
 
 const app = express();
+const streamPipeline = promisify(pipeline);
 const PORT = process.env.PORT || 8080;
 
 const WORKER_VERSION = "1.0.0";
@@ -147,7 +150,6 @@ app.post("/connect", (req, res) => {
 
 app.use("/proxy", async (req, res) => {
   try {
-    // Extract target URL from query (example: /proxy?url=https://example.com)
     const targetUrl = req.query.url;
     if (!targetUrl) {
       return res.status(400).send("Missing url query param");
@@ -155,21 +157,25 @@ app.use("/proxy", async (req, res) => {
 
     console.log(`Proxying request to: ${targetUrl}`);
 
-    // Forward the request
+    // Clone headers but remove "host"
+    const headers = { ...req.headers };
+    delete headers.host;
+
+    // Add a browser-like User-Agent
+    headers["user-agent"] =
+      headers["user-agent"] || "Mozilla/5.0 (Windows NT 10.0; Win64; x64)";
+
     const response = await fetch(targetUrl, {
       method: req.method,
-      headers: { ...req.headers, host: new URL(targetUrl).host },
-      body: req.method !== "GET" && req.method !== "HEAD" ? req : undefined,
+      headers,
+      redirect: "follow", // follow redirects (default is "follow")
     });
 
-    // Pipe response headers
     res.status(response.status);
-    response.headers.forEach((value, key) => {
-      res.setHeader(key, value);
-    });
+    response.headers.forEach((value, key) => res.setHeader(key, value));
 
-    // Stream the response body back to the client
-    response.body.pipe(res);
+    // Stream response back
+    await streamPipeline(response.body, res);
 
   } catch (err) {
     console.error("Proxy error:", err);
