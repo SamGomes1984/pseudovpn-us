@@ -25,6 +25,28 @@ function cleanupExpiredSessions() {
   }
 }
 
+
+
+let renderRegion = "Unknown";
+
+async function fetchRenderRegion() {
+  try {
+    const res = await fetch("http://169.254.169.254/metadata", {
+      headers: { "Metadata-Flavor": "render" },
+    });
+    const data = await res.json();
+    renderRegion = data.region || "Unknown";
+    console.log("Detected Render region:", renderRegion);
+  } catch (err) {
+    console.warn("Could not fetch Render metadata, defaulting to Unknown:", err.message);
+  }
+}
+
+// Call once at startup
+fetchRenderRegion();
+
+
+
 // Validate session token (simplified)
 function validateToken(token, sessionId) {
   if (!token) return false;
@@ -51,8 +73,8 @@ function getClientInfo(req) {
 
   return {
     ip,
-    country: process.env.RENDER_REGION || "Unknown",
-    datacenter: process.env.RENDER_REGION || "Unknown",
+    country: renderRegion",
+    datacenter: renderRegion",
     userAgent: req.headers["user-agent"] || "Unknown",
   };
 }
