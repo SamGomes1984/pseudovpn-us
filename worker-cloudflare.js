@@ -28,18 +28,26 @@ function cleanupExpiredSessions() {
 
 
 let renderRegion = "Unknown";
+const IPAPI_KEY = "e23d6cfa5d0bb9b27aa118e1c785321d"; // replace with your actual key
 
 async function fetchRegionByIP() {
   try {
-    const res = await fetch("https://ipapi.com/ip_api.php?ip");
+    // You can pass no IP to get your server's IP info
+    const res = await fetch(`http://api.ipapi.com/check?access_key=${IPAPI_KEY}`);
     const data = await res.json();
-    renderRegion = `${data.city}, ${data.country_name}`;
+
+    const city = data.city || "Unknown";
+    const country = data.country_name || "Unknown";
+
+    renderRegion = `${city}, ${country}`;
+    console.log("Detected region:", renderRegion);
   } catch (err) {
     console.warn("IP region lookup failed:", err.message);
     renderRegion = "Lookup Failed";
   }
 }
 
+// Call once at startup
 await fetchRegionByIP();
 
 
