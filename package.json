@@ -1,0 +1,36 @@
+{
+  "name": "serverless-pseudovpn",
+  "version": "1.0.0",
+  "description": "Serverless Pseudo-VPN using edge computing",
+  "main": "client.js",
+  "bin": {
+    "pseudovpn": "./client.js"
+  },
+  "scripts": {
+    "start": "node client.js",
+    "test": "node client.js --test-all",
+    "benchmark": "node client.js --benchmark",
+    "deploy-cf": "wrangler publish",
+    "deploy-deno": "deployctl deploy --project=pseudovpn worker-deno.js",
+    "setup": "npm install && node setup.js"
+  },
+  "keywords": [
+    "vpn",
+    "proxy",
+    "serverless",
+    "edge-computing",
+    "networking"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.3.0",
+    "wrangler": "^4.33.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20230419.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

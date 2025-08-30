@@ -1,0 +1,48 @@
+name = "pseudovpn-default"
+main = "worker-cloudflare.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[vars]
+REGION = "DEFAULT"
+COUNTRY = "US"
+
+[env.US_EAST]
+name = "pseudovpn-us-east"
+main = "worker-cloudflare.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[env.US_EAST.vars]
+REGION = "US_EAST"
+COUNTRY = "US"
+
+[env.US_WEST]
+name = "pseudovpn-us-west"
+main = "worker-cloudflare.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[env.US_WEST.vars]
+REGION = "US_WEST"
+COUNTRY = "US"
+
+[env.EU_WEST]
+name = "pseudovpn-eu-west"
+main = "worker-cloudflare.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[env.EU_WEST.vars]
+REGION = "EU_WEST"
+COUNTRY = "EU"
+
+[env.ASIA_PACIFIC]
+name = "pseudovpn-ap-southeast"
+main = "worker-cloudflare.js"
+compatibility_date = "2024-01-01"
+workers_dev = true
+
+[env.ASIA_PACIFIC.vars]
+REGION = "ASIA_PACIFIC"
+COUNTRY = "AP"

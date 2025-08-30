@@ -1,0 +1,33 @@
+{
+  "regions": {
+    "US": {
+      "name": "United States",
+      "workers": [
+        "https://pseudovpn-us-east.hakzeemirror.workers.dev",
+        "https://pseudovpn-us-east.hakzeemirror.workers.dev"
+      ]
+    },
+    "EU": {
+      "name": "Europe",
+      "workers": [
+        "https://pseudovpn-eu-west.hakzeemirror.workers.dev",
+        "https://pseudovpn-eu-west.hakzeemirror.workers.dev"
+      ]
+    },
+    "AP": {
+      "name": "Asia Pacific",
+      "workers": [
+        "https://pseudovpn-ap-southeast.hakzeemirror.workers.dev",
+        "https://pseudovpn-ap-southeast.hakzeemirror.workers.dev"
+      ]
+    }
+  },
+  "auth": {
+    "tokenDuration": 300,
+    "refreshBuffer": 60
+  },
+  "health": {
+    "checkInterval": 30000,
+    "timeout": 5000
+  }
+}
