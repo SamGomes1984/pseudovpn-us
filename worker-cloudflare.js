@@ -73,8 +73,8 @@ function getClientInfo(req) {
 
   return {
     ip,
-    country: renderRegion",
-    datacenter: renderRegion",
+    country: renderRegion,
+    datacenter: renderRegion,
     userAgent: req.headers["user-agent"] || "Unknown",
   };
 }
@@ -90,8 +90,8 @@ app.get("/health", (req, res) => {
     timestamp: Date.now(),
     uptime: process.uptime(),
     activeSessions: activeSessions.size,
-    region: process.env.RENDER_REGION || "Unknown",
-    datacenter: process.env.RENDER_REGION || "Unknown",
+    region: renderRegion",
+    datacenter: renderRegion",
     country: "Unknown", // no country info in Render
   });
 });
@@ -125,8 +125,8 @@ app.post("/connect", (req, res) => {
     sessionId,
     ...clientInfo,
     worker: {
-      region: process.env.RENDER_REGION || "Unknown",
-      datacenter: process.env.RENDER_REGION || "Unknown",
+      region: renderRegion",
+      datacenter: renderRegion",
       version: WORKER_VERSION,
     },
     sessionExpires: new Date(tokenPayload.expires).toISOString(),
@@ -169,7 +169,7 @@ app.all("/proxy", async (req, res) => {
     res.status(proxyResponse.status);
     proxyResponse.headers.forEach((value, key) => res.setHeader(key, value));
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("X-Proxy-Datacenter", process.env.RENDER_REGION || "Unknown");
+    res.setHeader("X-Proxy-Datacenter", renderRegion");
 
     const body = await proxyResponse.buffer();
     res.send(body);
@@ -184,8 +184,8 @@ app.get(["/ip", "/info"], (req, res) => {
   res.json({
     ...clientInfo,
     worker: {
-      region: process.env.RENDER_REGION || "Unknown",
-      datacenter: process.env.RENDER_REGION || "Unknown",
+      region: renderRegion",
+      datacenter: renderRegion",
       version: WORKER_VERSION,
     },
     timestamp: new Date().toISOString(),
@@ -198,7 +198,7 @@ app.get("/", (req, res) => {
     service: "PseudoVPN Render",
     version: WORKER_VERSION,
     endpoints: ["/health", "/connect", "/proxy", "/ip"],
-    region: process.env.RENDER_REGION || "Unknown",
+    region: renderRegion",
   });
 });
 
