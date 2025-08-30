@@ -168,27 +168,43 @@ app.all("/proxy", async (req, res) => {
   try {
     session.lastActivity = Date.now();
 
+    // Filter headers
+    const headers = { ...req.headers };
+    delete headers["host"];
+    delete headers["connection"];
+    delete headers["content-length"];
+
+    // Prepare request body safely (use raw stream if not GET/HEAD)
+    let body;
+    if (req.method !== "GET" && req.method !== "HEAD") {
+      body = req; // use the raw stream instead of trying to JSON.stringify
+    }
+
     const proxyResponse = await fetch(targetUrl, {
       method: req.method,
       headers: {
-        ...req.headers,
+        ...headers,
         "user-agent": "PseudoVPN-Render/1.0",
         "x-forwarded-for": session.clientInfo.ip,
       },
-      body: req.method !== "GET" && req.method !== "HEAD" ? req.body : undefined,
+      body,
     });
 
+    // Set status and headers
     res.status(proxyResponse.status);
     proxyResponse.headers.forEach((value, key) => res.setHeader(key, value));
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("X-Proxy-Datacenter", renderRegion);
 
-    const body = await proxyResponse.buffer();
-    res.send(body);
+    // Stream response back (no buffering — works for HTML, JSON, video, etc.)
+    proxyResponse.body.pipe(res);
+
   } catch (err) {
+    console.error("Proxy error:", err);
     res.status(500).send(`Proxy error: ${err.message}`);
   }
 });
+
 
 // IP Info
 app.get(["/ip", "/info"], (req, res) => {
