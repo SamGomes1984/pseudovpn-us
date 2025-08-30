@@ -145,12 +145,6 @@ app.post("/connect", (req, res) => {
   });
 });
 
-// Just to verify server is alive
-app.get("/", (req, res) => {
-  res.send("PseudoVPN Proxy is running ✅");
-});
-
-// Main proxy endpoint
 app.use("/proxy", async (req, res) => {
   try {
     // Extract target URL from query (example: /proxy?url=https://example.com)
@@ -186,7 +180,6 @@ app.use("/proxy", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Proxy server running on port ${PORT}`);
 });
-
 // IP Info
 app.get(["/ip", "/info"], (req, res) => {
   const clientInfo = getClientInfo(req);
