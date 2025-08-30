@@ -31,7 +31,7 @@ let renderRegion = "Unknown";
 
 async function fetchRegionByIP() {
   try {
-    const res = await fetch("https://ipapi.co/json/");
+    const res = await fetch("https://ipapi.com/ip_api.php?ip");
     const data = await res.json();
     renderRegion = `${data.city}, ${data.country_name}`;
   } catch (err) {
@@ -40,8 +40,8 @@ async function fetchRegionByIP() {
   }
 }
 
-// Call at startup
 await fetchRegionByIP();
+
 
 // Example endpoint
 app.get("/region", (req, res) => {
