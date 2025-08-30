@@ -145,66 +145,47 @@ app.post("/connect", (req, res) => {
   });
 });
 
-// Proxy
-app.all("/proxy", async (req, res) => {
-  const sessionId = req.headers["x-session-id"];
-  const token = req.headers["authorization"]?.replace("Bearer ", "");
+// Just to verify server is alive
+app.get("/", (req, res) => {
+  res.send("PseudoVPN Proxy is running ✅");
+});
 
-  if (!sessionId || !token) return res.status(401).send("Unauthorized");
-
-  const session = activeSessions.get(sessionId);
-  if (!session || Date.now() > session.expires) {
-    activeSessions.delete(sessionId);
-    return res.status(401).send("Session expired");
-  }
-
-  if (!validateToken(token, sessionId)) {
-    return res.status(401).send("Invalid token");
-  }
-
-  const targetUrl = req.query.url;
-  if (!targetUrl) return res.status(400).send("Target URL required");
-
+// Main proxy endpoint
+app.use("/proxy", async (req, res) => {
   try {
-    session.lastActivity = Date.now();
-
-    // Filter headers
-    const headers = { ...req.headers };
-    delete headers["host"];
-    delete headers["connection"];
-    delete headers["content-length"];
-
-    // Prepare request body safely (use raw stream if not GET/HEAD)
-    let body;
-    if (req.method !== "GET" && req.method !== "HEAD") {
-      body = req; // use the raw stream instead of trying to JSON.stringify
+    // Extract target URL from query (example: /proxy?url=https://example.com)
+    const targetUrl = req.query.url;
+    if (!targetUrl) {
+      return res.status(400).send("Missing url query param");
     }
 
-    const proxyResponse = await fetch(targetUrl, {
+    console.log(`Proxying request to: ${targetUrl}`);
+
+    // Forward the request
+    const response = await fetch(targetUrl, {
       method: req.method,
-      headers: {
-        ...headers,
-        "user-agent": "PseudoVPN-Render/1.0",
-        "x-forwarded-for": session.clientInfo.ip,
-      },
-      body,
+      headers: { ...req.headers, host: new URL(targetUrl).host },
+      body: req.method !== "GET" && req.method !== "HEAD" ? req : undefined,
     });
 
-    // Set status and headers
-    res.status(proxyResponse.status);
-    proxyResponse.headers.forEach((value, key) => res.setHeader(key, value));
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("X-Proxy-Datacenter", renderRegion);
+    // Pipe response headers
+    res.status(response.status);
+    response.headers.forEach((value, key) => {
+      res.setHeader(key, value);
+    });
 
-    // Stream response back (no buffering — works for HTML, JSON, video, etc.)
-    proxyResponse.body.pipe(res);
+    // Stream the response body back to the client
+    response.body.pipe(res);
 
   } catch (err) {
     console.error("Proxy error:", err);
-    res.status(500).send(`Proxy error: ${err.message}`);
+    res.status(500).send("Proxy failed: " + err.message);
   }
 });
 
+app.listen(PORT, () => {
+  console.log(`Proxy server running on port ${PORT}`);
+});
 
 // IP Info
 app.get(["/ip", "/info"], (req, res) => {
