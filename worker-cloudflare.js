@@ -177,9 +177,6 @@ app.use("/proxy", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Proxy server running on port ${PORT}`);
-});
 // IP Info
 app.get(["/ip", "/info"], (req, res) => {
   const clientInfo = getClientInfo(req);
