@@ -198,7 +198,7 @@ app.get("/", (req, res) => {
     service: "PseudoVPN Render",
     version: WORKER_VERSION,
     endpoints: ["/health", "/connect", "/proxy", "/ip"],
-    region: renderRegion",
+    region: renderRegion,
   });
 });
 
