@@ -29,21 +29,25 @@ function cleanupExpiredSessions() {
 
 let renderRegion = "Unknown";
 
-async function fetchRenderRegion() {
+async function fetchRegionByIP() {
   try {
-    const res = await fetch("http://169.254.169.254/metadata", {
-      headers: { "Metadata-Flavor": "render" },
-    });
+    const res = await fetch("https://ipapi.co/json/");
     const data = await res.json();
-    renderRegion = data.region || "Unknown";
-    console.log("Detected Render region:", renderRegion);
+    renderRegion = `${data.city}, ${data.country_name}`;
   } catch (err) {
-    console.warn("Could not fetch Render metadata, defaulting to Unknown:", err.message);
+    console.warn("IP region lookup failed:", err.message);
+    renderRegion = "Lookup Failed";
   }
 }
 
-// Call once at startup
-fetchRenderRegion();
+// Call at startup
+await fetchRegionByIP();
+
+// Example endpoint
+app.get("/region", (req, res) => {
+  res.json({ region: renderRegion });
+});
+
 
 
 
